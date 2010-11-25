@@ -56,7 +56,7 @@ p#slogan
 #nav
 {
 	width: 100%;
-	height: 48px;
+	height: 40px;
 	background-color: #e7e9e8;
 	border-bottom: 2px solid #5e88a2;
 }
@@ -65,7 +65,7 @@ p#slogan
 {
 	list-style: none outside none;
 	margin: 0;
-	padding: 12px 0 0 15px;
+	padding: 8px 0 0 15px;
 }
 
 #nav ul.primary-links li
@@ -105,14 +105,19 @@ p#slogan
 	float: left;
 }
 
-h1#page-title
+h1#page-title, .content h2
 {
 	color: #e31837;
 	font-weight: normal;
+	font-size: 150%;
+}
+
+.content h2
+{
 	font-size: 125%;
 }
 
-#main a:link
+#main a:link, #main a:visited
 {
 	color: #e31837;
 	text-decoration: none;

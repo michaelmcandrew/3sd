@@ -23,29 +23,31 @@
 		</div>
 		
 		<!--wraps the main content area and the right-col-->
-		<div id="content-wrapper">
-			<div id="main">
-				<!--tabs visible when logged in-->
-			     <?php if (!empty($title)): ?><h1 class="title" id="page-title"><?php print $title; ?></h1><?php endif; ?>
-		          <?php if (!empty($tabs)): ?><div class="tabs"><?php print $tabs; ?></div><?php endif; ?>
-		          <?php if (!empty($messages)): print $messages; endif; ?>
-		          <?php if (!empty($help)): print $help; endif; ?>
+			<div id="content-wrapper">
+				<div class="center_content">
+					<div id="main">
+					<!--tabs visible when logged in-->
+				     <?php if (!empty($title)): ?><h1 class="title" id="page-title"><?php print $title; ?></h1><?php endif; ?>
+			          <?php if (!empty($tabs)): ?><div class="tabs"><?php print $tabs; ?></div><?php endif; ?>
+			          <?php if (!empty($messages)): print $messages; endif; ?>
+			          <?php if (!empty($help)): print $help; endif; ?>
 			
-				<!--main-content-->
-				<div id="content-output">
-					<?php print $content; ?>
+					<!--main-content-->
+					<div id="content-output">
+						<?php print $content; ?>
+					</div>
+					<!--end of main-content-->
+				</div><!--end of main-->
+		
+					<?php if ($right): ?>
+					<div id="sidebar-right">
+						<?php print $right; ?>
+					</div>
+					<?php endif; ?>
+		
+					<div class="clear"></div>
 				</div>
-				<!--end of main-content-->
-			</div><!--end of main-->
-		
-			<?php if ($right): ?>
-			<div id="sidebar-right">
-				<?php print $right; ?>
-			</div>
-			<?php endif; ?>
-		
-			<div class="clear"></div>
-		</div><!--end of content-wrapper-->
+			</div><!--end of content-wrapper-->
 	 	
 		<div id="footer_blue">
 			<div class="center_content">

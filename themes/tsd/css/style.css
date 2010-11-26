@@ -136,7 +136,17 @@ h1#page-title, .content h2
 
 .item-list, .view-content
 {
-	margin-top: 25px;
+	margin-top: 30px;
+}
+
+.item-list ul 
+{
+	list-style: none outside none;
+}
+
+.views-row
+{
+	margin-bottom: 40px;
 }
 
 #sidebar-right
@@ -163,12 +173,6 @@ h1#page-title, .content h2
 #sidebar-right ul li.views-row 
 {
 	padding-bottom: 0;
-}
-
-#sidebar-right ul a
-{
-	color: #000;
-	text-decoration: none;
 }
 
 #sidebar-right div.content

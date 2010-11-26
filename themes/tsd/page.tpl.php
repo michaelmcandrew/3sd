@@ -20,7 +20,7 @@
 			<div class="center_content">
 				<?php print theme('links', $primary_links, array('class' => 'links primary-links')); ?>
 			</div>
-			<div class="clear"></div>
+			gi
 		</div>
 		
 		<!--wraps the main content area and the right-col-->

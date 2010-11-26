@@ -11,6 +11,27 @@
 	clear: both;
 }
 
+h1, h2, h3
+{
+	font-weight: normal;
+}
+
+h2
+{
+	font-size: 125%;
+}
+
+a:link, a:visited
+{
+	color: #e31837;
+	text-decoration: none;
+}
+
+a:hover
+{
+	text-decoration: underline;
+}
+
 body
 {
 	margin: 0;
@@ -57,7 +78,7 @@ p#slogan
 #nav
 {
 	width: 100%;
-	height: 38px;
+	padding: 8px 0;
 	background-color: #e7e9e8;
 	border-bottom: 2px solid #5e88a2;
 }
@@ -66,7 +87,7 @@ p#slogan
 {
 	list-style: none outside none;
 	margin: 0;
-	padding: 8px 0 0 15px;
+	padding-left: 15px;
 }
 
 #nav ul.primary-links li
@@ -94,7 +115,7 @@ p#slogan
 	min-height: 400px;
 	height: auto !important;
 	margin: 0 auto;
-	padding: 25px 0;
+	padding: 25px 0 40px 0;
 	text-align: left;
 	font-size: 80%;
 	background-color: #fff;
@@ -110,30 +131,18 @@ p#slogan
 h1#page-title, .content h2
 {
 	color: #e31837;
-	font-weight: normal;
 	font-size: 150%;
 }
 
-.content h2
+.item-list, .view-content
 {
-	font-size: 125%;
-}
-
-a:link, a:visited
-{
-	color: #e31837;
-	text-decoration: none;
-}
-
-a:hover
-{
-	text-decoration: underline;
+	margin-top: 25px;
 }
 
 #sidebar-right
 {
 	width: 195px;
-	padding: 15px;
+	padding: 0 15px;
 	margin-bottom: 40px;
 	float: left;
 	border-left: 1px dashed #e31837;
@@ -151,6 +160,11 @@ a:hover
 	padding-bottom: 15px;
 }
 
+#sidebar-right ul li.views-row 
+{
+	padding-bottom: 0;
+}
+
 #sidebar-right ul a
 {
 	color: #000;
@@ -161,7 +175,6 @@ a:hover
 {
 	font-size: 80%;
 }
-
 
 #sidebar-right h2
 {
@@ -192,8 +205,7 @@ a:hover
 #footer_blue
 {
 	width: 100%;
-	height: 80px;
-	padding-top: 5px;
+	padding: 5px 0;
 	background-color: #5e88a2;
 	color: #fff;
 	font-size: 65%;

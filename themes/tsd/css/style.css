@@ -57,7 +57,7 @@ p#slogan
 #nav
 {
 	width: 100%;
-	height: 40px;
+	height: 38px;
 	background-color: #e7e9e8;
 	border-bottom: 2px solid #5e88a2;
 }
@@ -119,13 +119,13 @@ h1#page-title, .content h2
 	font-size: 125%;
 }
 
-#main a:link, #main a:visited
+a:link, a:visited
 {
 	color: #e31837;
 	text-decoration: none;
 }
 
-#main a:hover
+a:hover
 {
 	text-decoration: underline;
 }
@@ -170,12 +170,6 @@ h1#page-title, .content h2
 	font-weight: normal;
 	font-size: 110% ;
 	padding: 6px;
-}
-
-#sidebar-right a
-{
-	color: #000;
-	text-decoration: none;
 }
 
 #sidebar-right a:hover, #sidebar-right a:hover p, #sidebar-right a:hover span,

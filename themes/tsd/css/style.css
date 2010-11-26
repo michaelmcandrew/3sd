@@ -142,6 +142,7 @@ h1#page-title, .content h2
 .item-list ul, .item-list ul li
 {
 	list-style: none outside none;
+	margin: 0;
 }
 
 .views-row

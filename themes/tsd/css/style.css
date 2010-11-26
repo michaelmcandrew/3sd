@@ -134,7 +134,7 @@ h1#page-title, .content h2
 	font-size: 150%;
 }
 
-.item-list .pager
+.item-list ul.pager
 {
 	margin-top: 30px;
 }
@@ -143,6 +143,13 @@ h1#page-title, .content h2
 {
 	list-style: none outside none;
 	margin: 0;
+}
+
+.item-list li a
+{
+	font-size: 108%;
+	margin-bottom: 4px;
+	display: block;
 }
 
 .views-row

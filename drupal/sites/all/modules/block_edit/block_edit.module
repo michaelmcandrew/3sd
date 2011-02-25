@@ -1,0 +1,26 @@
+<?php
+// $Id: block_edit.module,v 1.1.2.2 2009/05/26 19:46:14 psynaptic Exp $
+
+/**
+ * @file
+ * Adds edit links to blocks to make block administration easier.
+ */
+
+/**
+ * Adds CSS and JavaScript files required for edit links.
+ */
+function block_edit_init() {
+  if (user_access('administer blocks')) {
+    if (function_exists('drupal_get_path')) {
+
+      $path = drupal_get_path('module', 'block_edit');
+      drupal_add_js($path .'/block_edit.js');
+      drupal_add_css($path .'/block_edit.css');
+    }
+    $settings = array(
+      'block_edit' => array(
+        'destination' => drupal_get_destination(),
+      ));
+    drupal_add_js($settings, 'setting');
+  }
+}

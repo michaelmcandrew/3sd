@@ -1,0 +1,103 @@
+<?php
+// $Id: block_save_edit.module,v 1.1 2008/02/23 18:41:10 criznach Exp $
+
+/**
+ * Provide online user help.
+ *
+ * @param $path
+ * @param $arg
+ * @return
+ *   Help text
+ */
+function block_save_edit_help($path, $arg) {
+  switch ($section) {
+    case 'admin/help#block_save_edit':
+      return '<p>'. t('Block Save and Edit adds a "Save and edit" button to the block add and block configure forms.') .'</p>';
+    default:
+      return '';
+  }
+}
+
+/**
+ * Perform alterations before a form is rendered.
+ *
+ * @param $form
+ *   Nested array of form elements that comprise the form.
+ * @param $form_state
+ *   A keyed array containing the current state of the form.
+ * @param $form_id
+ *   String representing the name of the form itself. Typically this is the
+ *   name of the function that generated the form.
+ * @return
+ *   None.
+ */
+function block_save_edit_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+
+    // Catch the block add form
+    case 'block_add_block_form':
+      // Add the new button at the end of the form
+      // Catch the submit with our own function
+      $form['apply'] = array(
+        '#type' => 'submit',
+        '#value' => 'Apply',
+        '#submit' => array('block_save_edit_add_form_submit'),
+      );
+      break;
+
+    // Catch the block configure form
+    case 'block_admin_configure':
+      // Add the new button at the end of the form
+      // Catch the submit with our own function
+      $form['apply'] = array(
+        '#type' => 'submit',
+        '#value' => 'Apply',
+        '#submit' => array('block_save_edit_configure_form_submit'),
+      );
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
+ * Custom submit handler for block add page.
+ *
+ * @param $form_id, $form_state
+ * @return
+ *   None.
+ */
+function block_save_edit_add_form_submit($form, &$form_state) {
+  // Call the standard submit handler that creates the box record
+  block_add_block_form_submit($form, $form_state);
+
+  // Don't use last_insert_id because it grabs from the block_roles table rather than boxes
+  $bid = db_result(db_query("SELECT MAX(bid) FROM {boxes}"));
+
+  // Force update of the blocks table.
+  // This normally happens at the block list page, which we'll skip
+  _block_rehash();
+
+  // Redirect to the block configure page for the just-created block
+  $form_state['redirect'] = 'admin/build/block/configure/block/'. $bid;
+}
+
+/**
+ * Custom submit handler for block configuration page.
+ *
+ * @param $form_id, $form_state
+ * @return
+ *   None.
+ */
+function block_save_edit_configure_form_submit($form, &$form_state) {
+  // Execute the standard submit handler
+  block_admin_configure_submit($form, $form_state);
+
+  // Force update of the blocks table.
+  // This normally happens at the block list page, which we'll skip
+  _block_rehash();
+
+  // Redirect to the block configure page for the just-saved block
+  $form_state['redirect'] = 'admin/build/block/configure/'. $form_state['values']['module'] .'/'. $form_state['values']['delta'];
+}

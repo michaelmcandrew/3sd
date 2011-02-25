@@ -1,0 +1,20 @@
+/* $Id: block_edit.css,v 1.1.2.4 2009/05/26 22:12:11 psynaptic Exp $ */
+
+div.block-edit-link {
+  font-size: xx-small;
+  padding: 2px 3px 1px 0;
+  position: absolute;
+  z-index: 40;
+  display: none;
+  margin-top: -15px;
+}
+
+div.block-edit-link a {
+  text-decoration: none;
+  color: #CCC;
+  font-size: xx-small;
+}
+
+div.block-edit-link a:hover {
+  color: #000;
+}

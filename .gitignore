@@ -1,0 +1,11 @@
+*settings.php*
+*.sql
+*.mysql
+*.tar
+*.gz
+*.zip
+.svn*
+*~
+\#*\#
+drupal/sites/*/files/*
+drupal/backup/*

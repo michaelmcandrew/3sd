@@ -1,0 +1,11 @@
+; $Id: login_destination.info,v 1.6 2008/12/01 13:37:22 duke Exp $
+name = "Login destination"
+description = "Control where users are directed to once they login."
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-12-01
+version = "6.x-2.3"
+core = "6.x"
+project = "login_destination"
+datestamp = "1228141517"
+

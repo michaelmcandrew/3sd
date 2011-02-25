@@ -9,3 +9,4 @@
 \#*\#
 drupal/sites/*/files/*
 drupal/backup/*
+drupal/sites/all/cam/*

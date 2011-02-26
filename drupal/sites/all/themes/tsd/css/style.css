@@ -271,7 +271,10 @@ h1#page-title, .content h2
 }
 
 
-	
+.field-field-quote
+{
+	float: right;
+}	
 	
 	
 	

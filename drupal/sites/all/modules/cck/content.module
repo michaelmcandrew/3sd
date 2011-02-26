@@ -1,5 +1,5 @@
 <?php
-// $Id: content.module,v 1.301.2.100 2009/03/18 19:20:52 yched Exp $
+// $Id: content.module,v 1.301.2.123 2011/01/03 11:03:47 yched Exp $
 /**
  * @file
  * Allows administrators to associate custom fields to content types.
@@ -50,9 +50,6 @@ function content_init() {
   }
   if (module_exists('diff') && !function_exists('content_diff')) {
     module_load_include('inc', 'content', 'includes/content.diff');
-  }
-  if (module_exists('panels')) {
-    module_load_include('inc', 'content', 'includes/content.panels');
   }
 }
 
@@ -220,6 +217,15 @@ function content_views_api() {
     'api' => 2,
     'path' => drupal_get_path('module', 'content') . '/includes/views',
   );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function content_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return 'includes/panels/' . $plugin;
+  }
 }
 
 /**
@@ -605,7 +611,7 @@ function content_associate_fields($module) {
   foreach ($types as $type_name => $fields) {
     foreach ($fields as $field) {
       if ($field['module'] == $module && !in_array($field['field_name'], $fields_set)) {
-        $columns = module_invoke($field['module'], 'field_settings', 'database columns', $field);
+        $columns = (array) module_invoke($field['module'], 'field_settings', 'database columns', $field);
         db_query("UPDATE {". content_field_tablename() ."} SET db_columns = '%s' WHERE field_name = '%s'", serialize($columns), $field['field_name']);
         $fields_set[] = $field['field_name'];
       }
@@ -723,7 +729,7 @@ function content_field($op, &$node, $field, &$items, $teaser, $page) {
 
     case 'view':
       $addition = array();
-      
+
       // Previewed nodes bypass the 'presave' op, so we need to some massaging.
       if ($node->build_mode == NODE_BUILD_PREVIEW && content_handle('widget', 'multiple values', $field) == CONTENT_HANDLE_CORE) {
         if (content_handle('widget', 'multiple values', $field) == CONTENT_HANDLE_CORE) {
@@ -759,7 +765,7 @@ function content_field($op, &$node, $field, &$items, $teaser, $page) {
           '#type' => 'content_field',
           '#title' => check_plain(t($field['widget']['label'])),
           '#field_name' => $field['field_name'],
-          '#access' => $formatter_name != 'hidden' && content_access('view', $field),
+          '#access' => $formatter_name != 'hidden' && content_access('view', $field, NULL, $node),
           '#label_display' => $label_display,
           '#node' => $node,
           '#teaser' => $teaser,
@@ -795,7 +801,7 @@ function content_field($op, &$node, $field, &$items, $teaser, $page) {
         else {
           $element['items'] += $format_info;
         }
-        
+
         // The wrapper lets us get the themed output for the whole field
         // to populate the $FIELD_NAME_rendered variable for node templates,
         // and hide it from the $content variable if needed.
@@ -1387,6 +1393,7 @@ function _content_get_formatter($formatter_name, $field_type) {
  *   If TRUE, clear the cache and fetch the information from the database again.
  */
 function _content_type_info($reset = FALSE) {
+  global $language;
   static $info;
 
   if ($reset || !isset($info)) {
@@ -1401,7 +1408,7 @@ function _content_type_info($reset = FALSE) {
       return array();
     }
 
-    if (!$reset && $cached = cache_get('content_type_info', content_cache_tablename())) {
+    if (!$reset && $cached = cache_get('content_type_info:'. $language->language, content_cache_tablename())) {
       $info = $cached->data;
     }
     else {
@@ -1468,9 +1475,19 @@ function _content_type_info($reset = FALSE) {
         $type['tables'] = array();
         if ($fields = content_field_instance_read(array('type_name' => $type_name))) {
           foreach ($fields as $field) {
-            $type['fields'][$field['field_name']] = $field;
             $db_info = content_database_info($field);
             $type['tables'][$db_info['table']] = $db_info['table'];
+
+            // Allow external modules to translate field strings.
+            $field_strings = array(
+              'widget_label' => $field['widget']['label'],
+              'widget_description' => $field['widget']['description'],
+            );
+            drupal_alter('content_field_strings', $field_strings, $field['type_name'], $field['field_name']);
+            $field['widget']['label'] = $field_strings['widget_label'];
+            $field['widget']['description'] = $field_strings['widget_description'];
+
+            $type['fields'][$field['field_name']] = $field;
             // This means that content_fields($field_name) (no type name)
             // returns the last instance loaded.
             $info['fields'][$field['field_name']] = $field;
@@ -1497,7 +1514,7 @@ function _content_type_info($reset = FALSE) {
         $info['content types'][$type_name] = $type;
       }
 
-      cache_set('content_type_info', $info, content_cache_tablename());
+      cache_set('content_type_info:'. $language->language, $info, content_cache_tablename());
     }
   }
   return $info;
@@ -1625,32 +1642,66 @@ function content_transpose_array_rows_cols($array) {
 }
 
 /**
+ * Helper function to flatten an array of allowed values.
+ *
+ * @param $array
+ *   A single or multidimensional array.
+ * @return
+ *   A flattened array.
+ */
+function content_array_flatten($array) {
+  $result = array();
+  if (is_array($array)) {
+    foreach ($array as $key => $value) {
+      if (is_array($value)) {
+        $result += content_array_flatten($value);
+      }
+      else {
+        $result[$key] = $value;
+      }
+    }
+  }
+  return $result;
+}
+
+/**
  *  Create an array of the allowed values for this field.
  *
  *  Used by number and text fields, expects to find either
  *  PHP code that will return the correct value, or a string
  *  with keys and labels separated with '|' and with each
  *  new value on its own line.
+ *
+ * @param $field
+ *   The field whose allowed values are requested.
+ * @param $flatten
+ *   Optional. Use TRUE to return a flattened array (default).
+ *   FALSE can be used to support optgroups for select widgets
+ *   when allowed values list is generated using PHP code.
  */
-function content_allowed_values($field) {
+function content_allowed_values($field, $flatten = TRUE) {
   static $allowed_values;
 
-  if (isset($allowed_values[$field['field_name']])) {
-    return $allowed_values[$field['field_name']];
+  $cid = $field['field_name'] .':'. ($flatten ? '1' : '0');
+  if (isset($allowed_values[$cid])) {
+    return $allowed_values[$cid];
   }
 
-  $allowed_values[$field['field_name']] = array();
+  $allowed_values[$cid] = array();
 
   if (isset($field['allowed_values_php'])) {
     ob_start();
     $result = eval($field['allowed_values_php']);
     if (is_array($result)) {
-      $allowed_values[$field['field_name']] = $result;
+      if ($flatten) {
+        $result = content_array_flatten($result);
+      }
+      $allowed_values[$cid] = $result;
     }
     ob_end_clean();
   }
 
-  if (empty($allowed_values[$field['field_name']]) && isset($field['allowed_values'])) {
+  if (empty($allowed_values[$cid]) && isset($field['allowed_values'])) {
     $list = explode("\n", $field['allowed_values']);
     $list = array_map('trim', $list);
     $list = array_filter($list, 'strlen');
@@ -1659,14 +1710,34 @@ function content_allowed_values($field) {
       $opt = content_filter_xss($opt);
       if (strpos($opt, '|') !== FALSE) {
         list($key, $value) = explode('|', $opt);
-        $allowed_values[$field['field_name']][$key] = (isset($value) && $value !=='') ? $value : $key;
+        $allowed_values[$cid][$key] = (isset($value) && $value !=='') ? $value : $key;
       }
       else {
-        $allowed_values[$field['field_name']][$opt] = $opt;
+        $allowed_values[$cid][$opt] = $opt;
       }
     }
+    // Allow external modules to translate allowed values list.
+    drupal_alter('content_allowed_values', $allowed_values[$cid], $field);
   }
-  return $allowed_values[$field['field_name']];
+  return $allowed_values[$cid];
+}
+
+/**
+ * Filter out HTML from allowed values array while leaving entities unencoded.
+ *
+ * @see content_allowed_values()
+ * @see optionwidgets_select_process()
+ * @see content_handler_filter_many_to_one::allowed_values()
+ */
+function content_allowed_values_filter_html(&$options) {
+  foreach ($options as $key => $opt) {
+    if (is_array($opt)) {
+      content_allowed_values_filter_html($options[$key]);
+    }
+    else {
+      $options[$key] = html_entity_decode(strip_tags($opt), ENT_QUOTES);
+    }
+  }
 }
 
 /**
@@ -1723,7 +1794,7 @@ function content_format($field, $item, $formatter_name = 'default', $node = NULL
     $field = content_fields($field);
   }
 
-  if (content_access('view', $field) && $formatter = _content_get_formatter($formatter_name, $field['type'])) {
+  if (content_access('view', $field, NULL, $node) && $formatter = _content_get_formatter($formatter_name, $field['type'])) {
     $theme = $formatter['module'] .'_formatter_'. $formatter_name;
 
     $element = array(
@@ -1783,7 +1854,11 @@ function content_build_modes($selector = NULL) {
   static $info;
 
   if (!isset($info)) {
-    $data = module_invoke_all('content_build_modes');
+    $data = array();
+    foreach (module_implements('content_build_modes') as $module) {
+      $function = $module .'_content_build_modes';
+      $data = array_merge($data, (array) $function());
+    }
     $flat = array();
     foreach ($data as $tab) {
       // Use the + operator to preserve numeric indexes (core build modes).
@@ -1876,6 +1951,19 @@ function search_content_build_modes() {
         NODE_BUILD_SEARCH_RESULT => array(
           'title' => t('Search Result'),
           'views style' => FALSE,
+        ),
+      ),
+    ),
+  );
+}
+function book_content_build_modes() {
+  return array(
+    'print' => array(
+      'title' => t('Print'),
+      'build modes' => array(
+        NODE_BUILD_PRINT => array(
+          'title' => t('Print'),
+          'views style' => TRUE,
         ),
       ),
     ),
@@ -1996,6 +2084,10 @@ function content_table_schema($field = NULL) {
   if (!empty($field['columns'])) {
     foreach ($field['columns'] as $column => $attributes) {
       $column_name =  $field['field_name'] .'_'. $column;
+      if (isset($attributes['index']) && $attributes['index']) {
+        $schema['indexes'][$column_name] = array($column_name);
+        unset($attributes['index']);
+      }
       unset($attributes['column']);
       unset($attributes['sortable']);
       $schema['fields'][$column_name] = $attributes;
@@ -2003,6 +2095,43 @@ function content_table_schema($field = NULL) {
     $schema['content fields'][] = $field['field_name'];
   }
   return $schema;
+}
+
+/**
+ * Checks if an index exists.
+ *
+ * @todo: May we remove this funcion when implemented by Drupal core itself?
+ * @link http://drupal.org/node/360854
+ * @link http://dev.mysql.com/doc/refman/5.0/en/extended-show.html
+ *
+ * @param $table
+ *   Name of the table.
+ * @param $name
+ *   Name of the index.
+ * @return
+ *   TRUE if the table exists. Otherwise FALSE.
+ */
+function content_db_index_exists($table, $name) {
+  global $db_type;
+  if ($db_type == 'mysql' || $db_type == 'mysqli') {
+    if (version_compare(db_version(), '5.0.3') < 0) {
+      // Earlier versions of MySQL don't support a WHERE clause for SHOW.
+      $result = db_query('SHOW INDEX FROM {'. $table .'}');
+      while ($row = db_fetch_array($result)) {
+        if ($row['Key_name'] == $name) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+    return (bool)db_result(db_query("SHOW INDEX FROM {". $table ."} WHERE key_name = '$name'"));
+  }
+  elseif ($db_type == 'pgsql') {
+    // Note that the index names in Schema API for PostgreSQL are prefixed by
+    // the table name and suffixed by '_idx'.
+    return (bool)db_result(db_query("SELECT COUNT(indexname) FROM pg_indexes WHERE indexname = '{". $table ."}_{$name}_idx'"));
+  }
+  return FALSE;
 }
 
 /**
@@ -2111,18 +2240,23 @@ function content_default_value(&$form, &$form_state, $field, $delta) {
  *   The field on which the operation is to be performed.
  * @param $account
  *   (optional) The account to check, if not given use currently logged in user.
+ * @param $node
+ *   (optional) The node on which the operation is to be performed.
  * @return
  *   TRUE if the operation is allowed;
  *   FALSE if the operation is denied.
  */
-function content_access($op, $field, $account = NULL) {
+function content_access($op, $field, $account = NULL, $node = NULL) {
   global $user;
 
   if (is_null($account)) {
     $account = $user;
   }
-
-  $access = module_invoke_all('field_access', $op, $field, $account);
+  // Check for valid field data.
+  if (!isset($field['field_name'])) {
+    return FALSE;
+  }
+  $access = module_invoke_all('field_access', $op, $field, $account, $node);
   foreach ($access as $value) {
     if ($value === FALSE) {
       return FALSE;
@@ -2223,7 +2357,7 @@ function theme_content_exclude($content, $object, $context) {
  * TODO : this should live in theme/theme.inc, but then the preprocessor
  * doesn't get called when the theme overrides the template. Bug in theme layer ?
  */
-function content_preprocess_content_field(&$variables) {
+function template_preprocess_content_field(&$variables) {
   $element = $variables['element'];
   $field = content_fields($element['#field_name'], $element['#node']->type);
 
@@ -2334,11 +2468,40 @@ function content_content_extra_fields($type_name) {
       'view' => 'body'
     );
   }
+  $extra['revision_information'] = array(
+    'label' => t('Revision information'),
+    'description' => t('Node module form.'),
+    'weight' => 20
+  );
+  $extra['author'] = array(
+    'label' => t('Authoring information'),
+    'description' => t('Node module form.'),
+    'weight' => 20,
+  );
+  $extra['options'] = array(
+    'label' => t('Publishing options'),
+    'description' => t('Node module form.'),
+    'weight' => 25,
+   );
+  if (module_exists('comment')) {
+    $extra['comment_settings'] = array(
+      'label' => t('Comment settings'),
+      'description' => t('Comment module form.'),
+      'weight' => 30
+    );
+  }
   if (module_exists('locale') && variable_get("language_content_type_$type_name", 0)) {
     $extra['language'] = array(
       'label' => t('Language'),
       'description' => t('Locale module form.'),
       'weight' => 0
+    );
+  }
+  if (module_exists('translation') && translation_supported_type($type_name)) {
+    $extra['translation'] = array(
+      'label' => t('Translation settings'),
+      'description' => t('Translation module form.'),
+      'weight' => 30
     );
   }
   if (module_exists('menu')) {
@@ -2360,6 +2523,13 @@ function content_content_extra_fields($type_name) {
       'label' => t('Book'),
       'description' => t('Book module form.'),
       'weight' => 10
+    );
+  }
+  if (module_exists('path')) {
+    $extra['path'] = array(
+      'label' => t('Path settings'),
+      'description' => t('Path module form.'),
+      'weight' => 30
     );
   }
   if ($type_name == 'poll' && module_exists('poll')) {
@@ -2504,6 +2674,33 @@ function content_inactive_fields($type_name = NULL) {
     if (!in_array($field['field_name'], $active)) {
       $inactive[$field['type_name']][$field['field_name']] = content_field_instance_expand($field);
     }
+  }
+  if (!empty($type_name)) {
+    return $inactive[$type_name];
+  }
+  return $inactive;
+}
+
+ 
+/**
+ * Helper function to identify inactive instances.
+ * This will be the same results as content_inactive_fields(),
+ * EXCEPT that his function will return inactive instances even 
+ * if the fields have other (shared) instances that are still active.
+ */
+function content_inactive_instances($type_name = NULL) {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  if (!empty($type_name)) {
+    $param = array('type_name' => $type_name);
+    $inactive = array($type_name => array());
+  }
+  else {
+    $param = array();
+    $inactive = array();
+  }
+  $all = content_field_instance_read($param, TRUE);
+  foreach ($all as $field) {
+    $inactive[$field['type_name']][$field['field_name']] = content_field_instance_expand($field);
   }
   if (!empty($type_name)) {
     return $inactive[$type_name];

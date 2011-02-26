@@ -1,5 +1,5 @@
 <?php
-// $Id: content.views.inc,v 1.1.2.22 2009/01/14 13:19:47 karens Exp $
+// $Id: content.views.inc,v 1.1.2.28 2009/08/11 20:05:18 markuspetrux Exp $
 
 /**
  * @file
@@ -32,6 +32,9 @@ function content_views_handlers() {
       'content_handler_argument_numeric' => array(
         'parent' => 'views_handler_argument_numeric',
       ),
+      'content_handler_argument_reference' => array(
+        'parent' => 'content_handler_argument_numeric',
+      ),
       'content_handler_argument_many_to_one' => array(
         'parent' => 'views_handler_argument_many_to_one',
       ),
@@ -52,8 +55,7 @@ function content_views_handlers() {
         'parent' => 'views_handler_filter_numeric',
       ),
       'content_handler_filter_float' => array(
-        // views_handler_filter_float is defined in views_handler_filter_numeric.inc
-        'parent' => 'views_handler_filter_numeric',
+        'parent' => 'views_handler_filter_float',
       ),
       'content_handler_filter_many_to_one' => array(
         'parent' => 'views_handler_filter_many_to_one',
@@ -138,7 +140,8 @@ function content_views_data() {
   $data = array();
   foreach (content_fields() as $field) {
     $module = $field['module'];
-    $result = module_invoke($module, 'field_settings', 'views data', $field);
+    $result = (array) module_invoke($module, 'field_settings', 'views data', $field);
+    drupal_alter('field_settings', $result, 'views data', $field);
     if (empty($result)) {
       $result = content_views_field_views_data($field);
     }
@@ -177,6 +180,11 @@ function content_views_field_views_data($field) {
     $data = array();
     $data['table']['group']  = t('Content');
     $data['table']['join']['node'] = array(
+      'table' => $db_info['table'],
+      'left_field' => 'vid',
+      'field' => 'vid',
+    );
+    $data['table']['join']['node_revisions'] = array(
       'table' => $db_info['table'],
       'left_field' => 'vid',
       'field' => 'vid',
@@ -296,6 +304,52 @@ function content_views_field_views_data($field) {
         );
       }
     }
+
+    // Expose additional delta column for multiple value fields.
+    if ($field['multiple']) {
+      $title = t('@label (!name) - delta', array('@label' => t($field['widget']['label']), '!name' => $field['field_name']));
+      $title_short = t('@label-truncated - delta', array('@label-truncated' => $label_truncated));
+
+      $db_field = 'delta';
+      $data[$db_field] = array(
+        'group' => t('Content'),
+        'title' => $title,
+        'title short' => $title_short,
+        'help' => t('Delta - Appears in: @types', array('@types' => implode(', ', $types))),
+      );
+      $data[$db_field]['field'] = array(
+        'title' => $title,
+        'title short' => $title_short,
+        'field' => $db_field,
+        'table' => $db_info['table'],
+        'handler' => 'views_handler_field_numeric',
+        'click sortable' => TRUE,
+        'additional fields' => $additional_fields,
+        'access callback' => 'content_access',
+        'access arguments' => array('view', $field),
+      );
+      $data[$db_field]['argument'] = array(
+        'field' => $db_field,
+        'table' => $db_info['table'],
+        'handler' => 'views_handler_argument_numeric',
+        'additional fields' => $additional_fields,
+        'empty field name' => t('<No value>'),
+      );
+      $data[$db_field]['filter'] = array(
+        'field' => $db_field,
+        'table' => $db_info['table'],
+        'handler' => 'views_handler_filter_numeric',
+        'additional fields' => $additional_fields,
+        'allow empty' => TRUE,
+      );
+      $data[$db_field]['sort'] = array(
+        'field' => $db_field,
+        'table' => $db_info['table'],
+        'handler' => 'views_handler_sort',
+        'additional fields' => $additional_fields,
+      );
+    }
+
     return array($table_alias => $data);
   }
 }
@@ -310,9 +364,11 @@ function content_views_tablename($field) {
 
 function theme_content_view_multiple_field($items, $field, $values) {
   $output = '';
+  $i = 0;
   foreach ($items as $item) {
     if (!empty($item) || $item == '0') {
-      $output .= '<div class="field-item">'. $item .'</div>';
+      $output .= '<div class="field-item field-item-'. $i .'">'. $item .'</div>';
+      $i++;
     }
   }
   return $output;

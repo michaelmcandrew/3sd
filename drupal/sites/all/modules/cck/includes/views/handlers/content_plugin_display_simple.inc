@@ -1,5 +1,5 @@
 <?php
-// $Id: content_plugin_display_simple.inc,v 1.1.2.3 2008/10/21 22:25:15 yched Exp $
+// $Id: content_plugin_display_simple.inc,v 1.1.2.5 2010/06/09 04:10:25 karens Exp $
 
 /**
  * @file
@@ -13,6 +13,10 @@ class content_plugin_display_simple extends views_plugin_display {
   function render() {
     return !empty($this->view->result) || !empty($this->view->style_plugin->definition['even empty']) ? $this->view->style_plugin->render($this->view->result) : '';
   }
+
+  function uses_exposed() {
+    return FALSE;
+  }
 }
 
 class content_plugin_display_references extends content_plugin_display_simple {
@@ -20,10 +24,11 @@ class content_plugin_display_references extends content_plugin_display_simple {
     $options = $this->get_option('content_options');
 
     if ($options['string'] !== '') {
+      $like = $GLOBALS["db_type"] == 'pgsql' ? "ILIKE" : "LIKE";
       $match_clauses = array(
-        'contains' => "LIKE '%%%s%%'",
+        'contains' => "$like '%%%s%%'",
         'equals' => "= '%s'",
-        'starts_with' => "LIKE '%s%%'",
+        'starts_with' => "$like '%s%%'",
       );
       $clause = isset($match_clauses[$options['match']]) ? $match_clauses[$options['match']] : $match_clauses['contains'];
       $alias = $this->view->query->ensure_table($options['table']);

@@ -1,5 +1,8 @@
-*settings.php*
+settings.php
+civicrm.settings.php
 *.sql
+*.mysql
+!*/civicrm/sql/civicrm_data.*_*.mysql
 *.tar
 *.gz
 *.zip

@@ -1,0 +1,15 @@
+; $Id: themekey_features.info,v 1.1.2.2 2011/01/05 23:19:50 mkalkbrenner Exp $
+
+name = "ThemeKey Features (Experimental!)"
+description = "Integrates ThemeKey with Features. Warning! Don't use in production! Highly Experimental!"
+core = 6.x
+dependencies[]= themekey
+dependencies[]= features
+package = ThemeKey
+
+; Information added by drupal.org packaging script on 2011-01-13
+version = "6.x-3.2"
+core = "6.x"
+project = "themekey"
+datestamp = "1294948593"
+

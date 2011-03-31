@@ -1,0 +1,14 @@
+; $Id$
+name = CCK Input Elements - Checkbox
+description = Defines a checkbox for enduser interaction
+dependencies[] = content
+package = CCK
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-02-08
+version = "6.x-1.0-beta2"
+core = "6.x"
+project = "cck_inputs"
+datestamp = "1265651104"
+

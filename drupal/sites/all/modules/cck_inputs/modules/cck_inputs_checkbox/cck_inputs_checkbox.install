@@ -1,0 +1,41 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Implementation of hook_install().
+ */
+function cck_inputs_checkbox_install() {
+  drupal_load('module', 'content');
+  content_notify('install', 'cck_inputs_checkbox');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function cck_inputs_checkbox_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall', 'cck_inputs_checkbox');
+}
+
+/**
+ * Implementation of hook_enable().
+ *
+ * Notify content module when this module is enabled.
+ */
+function cck_inputs_checkbox_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable', 'cck_inputs_checkbox');
+}
+
+/**
+ * Implementation of hook_disable().
+ *
+ * Notify content module when this module is disabled.
+ */
+function cck_inputs_checkbox_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable', 'cck_inputs_checkbox');
+}
+
+

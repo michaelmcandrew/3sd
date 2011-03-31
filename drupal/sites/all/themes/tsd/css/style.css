@@ -128,6 +128,12 @@ p#slogan
 	float: left;
 }
 
+#hp-feature {
+	width: 100%;
+	height: 350px;
+	overflow: hidden;
+}
+
 h1#page-title, .content h2
 {
 	color: #e31837;

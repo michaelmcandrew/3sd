@@ -1,0 +1,15 @@
+; $Id: cck_inputs_form.info,v 1.1.2.1 2009/05/26 18:56:36 maulwuff Exp $
+name = CCK Input Elements - Form Group
+description = Defines a form for enduser interaction
+dependencies[] = content
+dependencies[] = fieldgroup
+package = CCK
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-02-08
+version = "6.x-1.0-beta2"
+core = "6.x"
+project = "cck_inputs"
+datestamp = "1265651104"
+

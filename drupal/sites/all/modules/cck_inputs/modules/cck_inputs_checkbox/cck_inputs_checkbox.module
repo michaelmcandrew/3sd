@@ -1,0 +1,104 @@
+<?php
+
+// $Id: cck_inputs_checkbox.module,v 1.1.2.5 2009/12/27 17:00:33 maulwuff Exp $
+
+
+//todo: Call hook_default_value everytime when CONTENT_CALLBACK_CUSTOM is set
+// to add default values to every "add another item" call. see http://drupal.org/node/668198
+
+/**
+ * @file
+ * Defines a checkbox for enduser interaction
+ */
+
+require_once ('checkbox_field.inc');
+require_once ('checkbox_widget.inc');
+require_once ('checkbox_formatter.inc');
+
+/**
+ * validate the input after submitting
+ * check if field is filled when set to required
+ */
+function cck_inputs_checkbox_validate($element, & $form_state) {
+  //check if field is filled when set to required
+  if ($element['#required'] && strlen($element['#value']) === 0) {
+    form_set_error($element['#name'], t("@s field is required", array (
+      '@s' => $element['#title']
+    )));
+  }
+}
+
+/**
+ * builds the form array for this element
+ * used for form generation and for theming for the end user
+ */
+function cck_inputs_checkbox_builder($element) {
+  #kpr($element);
+  if(!cck_inputs_checkbox_content_is_empty($element['#item'], '')){
+    $checkbox = array (
+      '#type' => 'checkbox',
+      '#name' => $element['#item']['checkbox_name'],
+      '#return_value' => $element['#item']['checkbox_value'],
+      '#title' => t($element['#item']['checkbox_label']),
+      '#default_value' => 0,
+    );
+  return $checkbox;
+  }
+}
+
+function cck_inputs_checkbox_checkbox_process_afterbuild($form_element, &$form_state){
+  #kpr($form_state);
+//  file_put_contents('/var/www/xyz.log', print_r(print_r('ab ',true),true),FILE_APPEND);
+//  if(is_string($form_element['#default_value'])){
+//    $form_element['#default_value'] = array(
+//      'checkbox_label' => 'Seat '.($form_element['#delta']+1),
+//      'checkbox_name' => 'checkbox_name_'.($form_element['#delta']+1),
+//      'checkbox_value' => ($form_element['#delta']+1),
+//    );
+//  }
+
+  return $form_element;
+}
+
+function cck_inputs_checkbox_form_alter(&$form, $form_state, $form_id) {
+
+  if (variable_get("reservation_".$form['type']['#value'], 0) == 1 ){
+    //from normal node ops,
+    foreach($form  as $i => $val){
+      //first, find field_XXX arrays
+      if(strpos($i, 'field_') !== false && is_array($val)){
+        foreach($val as $key => $value){
+          //then find the enumeration of items for this field where default value is not set
+          if(is_numeric($key) && strpos($value['#type'], 'cck_inputs_checkbox') !== false &&  is_string($value['#default_value'])){
+            $form[$i][$key]['#default_value'] = array(
+              'checkbox_label' => 'Seat '.($key+1),
+              'checkbox_name' => 'checkbox_name_'.($key+1),
+              'checkbox_value' => ($key+1),
+            );
+          }
+        }
+      }
+    }
+  }
+#file_put_contents('/var/www/xyz.log', print_r($form_state,true),FILE_APPEND);
+  if($form_id == 'content_add_more_js'){
+    ##file_put_contents('/var/www/xyz.log', print_r('js ',true),FILE_APPEND);
+     foreach($form  as $i => $val){
+      //first, find field_XXX arrays
+      if(strpos($i, 'field_') !== false && is_array($val)){
+        foreach($val as $key => $value){
+          //then find the enumeration of items for this field where default value is not set
+          if(is_numeric($key) && strpos($value['#type'], 'cck_inputs_checkbox') !== false &&  is_string($value['#default_value'])){
+            $form[$i][$key]['#default_value'] = array(
+              'checkbox_label' => 'Seat '.($key+1),
+              'checkbox_name' => 'checkbox_name_'.($key+1),
+              'checkbox_value' => ($key+1),
+            );
+          }
+        }
+
+      }
+    }
+    #return $form;
+  }//if content_add_more_js
+}

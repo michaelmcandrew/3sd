@@ -1,0 +1,63 @@
+<?php
+// $Id: cck_inputs_textfield.module,v 1.1.2.3 2009/10/25 20:47:36 maulwuff Exp $
+
+/**
+ * @file
+ * Defines a textfield for enduser interaction
+ */
+
+require_once('textfield_field.inc');
+require_once('textfield_widget.inc');
+require_once('textfield_formatter.inc');
+
+
+/**
+ * validate the input after submitting
+ * check if field is filled when set to required
+ */
+function cck_inputs_textfield_validate($element, &$form_state) {
+  if($element['#required'] && strlen($element['#value']) === 0){
+    form_set_error($element['#name'], t("@s field is required", array('@s'=>$element['#title'])));
+  }
+}
+
+
+/**
+ * builds the form array for this element.
+ * used for form generation and for theming
+ */
+function cck_inputs_textfield_builder($element){
+  #kpr($element);
+  if(!cck_inputs_textfield_content_is_empty($element['#item'], '')){
+    $textfield = array(
+      '#type' => 'textfield',
+      '#name' => $element['#item']['textfield_name'],
+      '#value' => $element['#item']['textfield_value'],
+      //#default_value does not work
+      '#title' => t($element['#item']['textfield_label']),
+      '#element_validate' => array('cck_inputs_textfield_validate'),
+      '#required' => (bool)$element['#item']['textfield_required'],
+    );
+    if(isset($element['#post'][$element['#item']['textfield_name']])){
+      $textfield['#value'] = $element['#post'][$element['#item']['textfield_name']];
+    }
+    return $textfield;
+  }
+}
+
+//
+//function cck_inputs_textfield_selectbuilder($element){
+//  $textfield = cck_inputs_textfield_builder($element);
+//  if($textfield != null){
+//    $textfield['#type'] = 'select';
+//    $textfield['#default_value'] = $textfield['#value'];
+//    unset($textfield['#value']); //not supported on select
+//    $textfield['#options'] = array(
+//        'a' => t('A'),
+//        'b' => t('B'),
+//        'c' => t('C'),
+//      );
+//
+//    return $textfield;
+//  }
+//}

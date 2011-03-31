@@ -14,33 +14,20 @@
 }
 
 .jcarousel-skin-default .jcarousel-container-horizontal {
-  width: 440px;
-  height: 102px;
   padding: 20px 40px;
   margin: auto;
 }
 
-.jcarousel-skin-default .jcarousel-container-vertical {
-  width: 102px;
-  height: 440px;
-  padding: 40px 20px;
-  margin: auto;
-}
-
 .jcarousel-skin-default .jcarousel-clip-horizontal {
-  width: 440px;
-}
-
-.jcarousel-skin-default .jcarousel-clip-vertical {
-  height: 440px;
+  
 }
 
 .jcarousel-skin-default .jcarousel-item {
   padding: 0;
-  width: 100px;
-  height: 100px;
+  width: 540px;
+  height: 300px;
   overflow: hidden;
-  border: 1px solid #CCC;
+  border: 2px solid #5E88A2;
   list-style: none;
   background: #fff none;
 }
@@ -49,9 +36,6 @@
   margin: 0 4px;
 }
 
-.jcarousel-skin-default .jcarousel-item-vertical {
-  margin: 4px 0;
-}
 
 .jcarousel-skin-default .jcarousel-item-placeholder {
   background: #fff url(throbber.gif) no-repeat center center;
@@ -110,44 +94,4 @@
   background-position: -96px -32px;
 }
 
-/**
- *  Vertical Buttons
- */
-.jcarousel-skin-default .jcarousel-prev-vertical {
-  position: absolute;
-  top: 10px;
-  left: 55px;
-  background-position: 0 -64px;
-}
-.jcarousel-skin-default .jcarousel-prev-vertical:hover {
-  background-position: -32px -64px;
-}
-.jcarousel-skin-default .jcarousel-prev-vertical:active {
-  background-position: -64px -64px;
-}
-.jcarousel-skin-default .jcarousel-prev-disabled-vertical,
-.jcarousel-skin-default .jcarousel-prev-disabled-vertical:hover,
-.jcarousel-skin-default .jcarousel-prev-disabled-vertical:active {
-  cursor: default;
-  background-position: -96px -64px;
-}
-
-.jcarousel-skin-default .jcarousel-next-vertical {
-  position: absolute;
-  bottom: 10px;
-  left: 55px;
-  background-position: 0 -96px;
-}
-.jcarousel-skin-default .jcarousel-next-vertical:hover {
-  background-position: -32px -96px;
-}
-.jcarousel-skin-default .jcarousel-next-vertical:active {
-  background-position: -64px -96px;
-}
-.jcarousel-skin-default .jcarousel-next-disabled-vertical,
-.jcarousel-skin-default .jcarousel-next-disabled-vertical:hover,
-.jcarousel-skin-default .jcarousel-next-disabled-vertical:active {
-  cursor: default;
-  background-position: -96px -96px;
-}
 

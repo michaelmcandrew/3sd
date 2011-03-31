@@ -1,0 +1,290 @@
+<?php
+
+
+// $Id: cck_inputs_form.module,v 1.1.2.3 2009/10/18 20:41:27 maulwuff Exp $
+
+/**
+ * @file
+ * Defines a form for enduser interaction
+ */
+
+/**
+ * name of the new group
+ */
+define(CCK_INPUTS_FORM_FORMTYPE, 'formgroup');
+
+//begin fieldgroup hooks
+
+/**
+ * hook_form_fieldgroup_types
+ *
+ * define a new group type
+ */
+function cck_inputs_form_fieldgroup_types() {
+  return array(
+    CCK_INPUTS_FORM_FORMTYPE => t('Fieldgroup as form')
+  );
+}
+
+/**
+ * hook_fieldgroup_default_settings
+ *
+ * called on submit of a new group
+ *
+ */
+function cck_inputs_form_fieldgroup_default_settings($group_type) {
+
+  if ($group_type['group_type'] != CCK_INPUTS_FORM_FORMTYPE) {
+    return;
+  }
+  //nothing to do
+}
+
+/**
+ * hook_fieldgroup_view
+ *
+ * called when the node is about to be shown. modify the $element
+ *
+ */
+function cck_inputs_form_fieldgroup_view(& $node, & $element, $group, $context) {
+
+  if ($group['group_type'] != CCK_INPUTS_FORM_FORMTYPE) {
+    return;
+  }
+  $fields = $group['fields'];
+
+  $element['#theme'] = 'cck_inputs_form_display_formstyle';
+  $element['#formsettings'] = $group['settings'][CCK_INPUTS_FORM_FORMTYPE];
+}
+
+/**
+ * hook_fieldgroup_form
+ *
+ * called when node add/edit form is shown
+ */
+function cck_inputs_form_fieldgroup_form(& $form, & $form_state, $form_id, $group) {
+  //nothing to do
+}
+
+/**
+ * hook_fieldgroup_save_group
+ *
+ * called on create/edit of group
+ */
+function cck_inputs_form_fieldgroup_save_group($group) {
+  //done with cck_inputs_form_form_fieldgroup_group_edit_form_alter
+}
+
+//end fieldgroup hooks
+
+//begin form alterations
+
+/**
+ * hook_form_FORMID_alter
+ * FORMID = fieldgroup_group_edit_form
+ *
+ * add fields for the settings of the new group
+ */
+function cck_inputs_form_form_fieldgroup_group_edit_form_alter(& $form, & $form_state) {
+  $type_name = $form['#content_type']['type'];
+  $group_name = $form['group_name']['#default_value'];
+
+  $content_type = content_types($type_name);
+  $groups = fieldgroup_groups($content_type['type']);
+  $group = $groups[$group_name];
+
+  if ($group['group_type'] != CCK_INPUTS_FORM_FORMTYPE) {
+    return;
+  }
+
+  module_load_include('inc', 'content', 'includes/content.admin');
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $form['group_type'] = array(
+    '#type' => 'hidden',
+    '#value' => $group['group_type'],
+
+
+  );
+  $form['settings'][CCK_INPUTS_FORM_FORMTYPE] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Form settings'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+
+
+  );
+
+  $form['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_action'] = array(
+    '#title' => t('Target URL'),
+    '#type' => 'textfield',
+    '#default_value' => $group['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_action'],
+    '#weight' => 2,
+    '#attributes' => array(
+      'class' => 'myform'
+    ),
+    '#description' => t('This is the url where input data is sent to'),
+    '#required' => TRUE,
+
+
+  );
+
+  $form['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_method'] = array(
+    '#title' => t('Send method'),
+    '#type' => 'select',
+    '#default_value' => $group['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_method'],
+    '#options' => array(
+      'post' => t('POST'),
+      'get' => t('GET'),
+
+
+    ),
+    '#weight' => 3,
+    '#attributes' => array(
+      'class' => 'myform'
+    ),
+    '#description' => t('If you don\'t know what to do here, leave on POST'),
+    '#required' => TRUE,
+
+
+  );
+
+  $form['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_enctype'] = array(
+    '#title' => t('MIME type in which the formdata is sent'),
+    '#type' => 'select',
+    '#default_value' => $group['settings'][CCK_INPUTS_FORM_FORMTYPE]['form_enctype'],
+    '#options' => array(
+      'application/x-www-form-urlencoded' => t('Default'),
+      'text/plain' => t('Plain Text'),
+      'application/octet-stream' => t('Binary Data'),
+
+
+    ),
+    '#weight' => 4,
+    '#attributes' => array(
+      'class' => 'myform'
+    ),
+    '#description' => t('If you don\'t know what to do here, leave on Default'),
+    '#required' => TRUE,
+
+
+  );
+
+  $form['#validate'][] = 'cck_inputs_form_group_edit_form_validate';
+  $form['#submit'][] = 'cck_inputs_form_group_edit_form_submit';
+
+}
+
+/**
+ * hook_form_FORMID_alter
+ * FORMID = content_field_overview_form
+ *
+ * show the group types select box
+ */
+function cck_inputs_form_form_content_field_overview_form_alter(& $form, & $form_state) {
+  $options = fieldgroup_types();
+  $form['_add_new_group']['group_type'] = array(
+    '#type' => 'select',
+    '#description' => t('Type of group.'),
+    '#options' => $options,
+    '#default_value' => 'standard',
+  );
+
+}
+
+//end form alterations
+
+//begin own callbacks
+
+/**
+ * Validate the Fieldgroup edit form.
+ */
+function cck_inputs_form_group_edit_form_validate($form, & $form_state) {
+  //TODO: validate url?
+  //  $form_values = $form_state['values'];
+  //  $group_type = $form_values['group_type'];
+  //
+  //  if ($group_type != CCK_INPUTS_FORM_FORMTYPE) {
+  //    return;
+  //  }
+  //
+  //  $content_type = $form['#content_type'];
+  //  $groups = fieldgroup_groups($content_type['type']);
+  //  $group = $groups[$form_values['group_name']];
+  //  foreach ($group['settings'][CCK_INPUTS_FORM_FORMTYPE] as $field_name => $data) {
+  //    #print_r($data);
+  //  }
+}
+
+/**
+ * Submit the Fieldgroup edit form.
+ */
+function cck_inputs_form_group_edit_form_submit($form, & $form_state) {
+  //saved by fieldgroup
+  //  $form_values = $form_state['values'];
+  //  $group_type = $form_values['group_type'];
+  //
+  //  if ($group_type != CCK_INPUTS_FORM_FORMTYPE) {
+  //    return;
+  //  }
+  //
+  //  module_load_include('inc', 'content', 'includes/content.crud');
+  //  $content_type = $form['#content_type'];
+  //
+  //  $groups = fieldgroup_groups($content_type['type']);
+  //  $group = $groups[$form_values['group_name']];
+  //
+  //  foreach ($group['settings'][CCK_INPUTS_FORM_FORMTYPE] as $field_name => $data) {
+  //    #print_r($data);
+  //  }
+}
+
+//end own callbacks
+
+/**
+ * Implementation of hook_theme().
+ */
+function cck_inputs_form_theme() {
+  return array(
+    'cck_inputs_form_display_formstyle' => array(
+      'arguments' => array(
+        'element' => NULL
+      ),
+
+
+    ),
+
+
+  );
+}
+
+/**
+ * theme the form and its contained fields
+ */
+function theme_cck_inputs_form_display_formstyle($element) {
+
+  $form = $element;
+  $form['submit'] =array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+      '#weight' => 1000,
+    );
+
+  if(isset($element['#formsettings']['form_builder'])){
+    $output = drupal_get_form($element['#formsettings']['form_builder'], $form);
+    return ($output);
+  }
+  else{
+    $output = '<form action="'.
+      url($element['#formsettings']['form_action']) .'" '.
+      'method="'. $element['#formsettings']['form_method'] .'" '.
+      'enctype="'. $element['#formsettings']['form_enctype'] .'">';
+
+    foreach (element_children($element) as $key) {
+      $output .=drupal_render($element[$key]);
+    }
+
+    $output .= drupal_render($form['submit']) .'</form>';
+    return $output;
+  }
+
+}

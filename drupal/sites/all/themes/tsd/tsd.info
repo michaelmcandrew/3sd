@@ -6,6 +6,7 @@ engine = phptemplate
 stylesheets[all][] = css/style.css
 stylesheets[print][] = print.css
 
+regions[hp_feature] = Homepage feature
 regions[right] = Right sidebar
 regions[footer_blue] = Footer blue
 regions[footer_lists] = Footer lists

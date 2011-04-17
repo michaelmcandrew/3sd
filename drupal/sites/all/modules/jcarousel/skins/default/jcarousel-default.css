@@ -14,7 +14,7 @@
 }
 
 .jcarousel-skin-default .jcarousel-container-horizontal {
-  padding: 20px 40px;
+  padding: 20px 12px;
   margin: auto;
 }
 
@@ -24,8 +24,8 @@
 
 .jcarousel-skin-default .jcarousel-item {
   padding: 0;
-  width: 540px;
-  height: 300px;
+  width: 612px !important;
+  height: 340px;
   overflow: hidden;
   border: 2px solid #5E88A2;
   list-style: none;
@@ -33,7 +33,7 @@
 }
 
 .jcarousel-skin-default .jcarousel-item-horizontal {
-  margin: 0 4px;
+  margin: 0 2px;
 }
 
 
@@ -59,7 +59,7 @@
 .jcarousel-skin-default .jcarousel-prev-horizontal {
   position: absolute;
   top: 55px;
-  left: 10px;
+  left: -16px;
   background-position: 0 0;
 }
 .jcarousel-skin-default .jcarousel-prev-horizontal:hover {
@@ -78,7 +78,7 @@
 .jcarousel-skin-default .jcarousel-next-horizontal {
   position: absolute;
   top: 55px;
-  right: 10px;
+  right: -16px;
   background-position: 0 -32px;
 }
 .jcarousel-skin-default .jcarousel-next-horizontal:hover {

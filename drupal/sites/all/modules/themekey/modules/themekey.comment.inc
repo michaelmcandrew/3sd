@@ -1,5 +1,4 @@
 <?php
-// $Id: themekey.comment.inc,v 1.5.2.4 2010/08/28 08:31:38 mkalkbrenner Exp $
 
 /**
  * @file

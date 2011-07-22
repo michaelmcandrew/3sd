@@ -1,4 +1,11 @@
-// $Id: CHANGELOG.txt,v 1.32.2.36 2011/01/13 19:48:16 mkalkbrenner Exp $
+ThemeKey 6.x-3.3, 2011-04-27
+----------------------------
+[#1030268] mkalkbrenner: Toggle "Property drupal:path is case sensitive" does not work; drupal:path is always case sensitive
+[#1038554] mkalkbrenner: Fixed Warning: First argument is expected to be a valid callback, 'theme_themekey_ui_theme_select_form' was given...
+[#1065878] mkalkbrenner: Error messages when activating all Themekey modules on a Standard English Drupal installation
+[#1125920] mkalkbrenner: don't set $custom_theme to 'default'
+[        ] mkalkbrenner: Integrated Print module's paths to detect node ids
+
 
 ThemeKey 6.x-3.2, 2011-01-13
 ----------------------------

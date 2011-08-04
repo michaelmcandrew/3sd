@@ -27,6 +27,9 @@
 			<div id="content-wrapper">
 				<div class="center_content">
 					<div id="main">
+					<div id="above-content-output">
+						<?php print $above_content; ?>
+					</div>
 					<!--tabs visible when logged in-->
 				     <?php if (!empty($title)): ?><h1 class="title" id="page-title"><?php print $title; ?></h1><?php endif; ?>
 			          <?php if (!empty($tabs)): ?><div class="tabs"><?php print $tabs; ?></div><?php endif; ?>
@@ -36,6 +39,9 @@
 					<!--main-content-->
 					<div id="content-output">
 						<?php print $content; ?>
+					</div>
+					<div id="below-content-output">
+						<?php print $below_content; ?>
 					</div>
 					<!--end of main-content-->
 				</div><!--end of main-->

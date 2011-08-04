@@ -7,5 +7,7 @@ stylesheets[all][] = css/style.css
 stylesheets[print][] = print.css
 
 regions[right] = Right sidebar
+regions[above_content] = Above content
+regions[below_content] = Below content
 regions[footer_blue] = Footer blue
 regions[footer_lists] = Footer lists

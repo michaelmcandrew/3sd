@@ -1,5 +1,4 @@
 <?php
-// $Id: themekey_features.module,v 1.1.2.6 2011/01/10 09:51:34 mkalkbrenner Exp $
 
 /**
  * Implementation of hook_features_api().
@@ -61,6 +60,11 @@ function themekey_features_rule_chain_features_export_render($module_name, $data
   }
 
   $code = array();
+  $code[] = "if (!defined('THEMEKEY_PAGECACHE_UNSUPPORTED')) {
+    define('THEMEKEY_PAGECACHE_UNSUPPORTED', 0);
+    define('THEMEKEY_PAGECACHE_SUPPORTED', 1);
+    define('THEMEKEY_PAGECACHE_TIMEBASED', 2);
+  }";
   $code[] = '$rules = '. features_var_export($keep_rules) .';';
   $code[] = '';
   $code[] = 'return $rules;';

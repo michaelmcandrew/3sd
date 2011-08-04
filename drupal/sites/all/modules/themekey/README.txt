@@ -1,4 +1,3 @@
-// $Id: README.txt,v 1.7.2.1 2011/01/09 09:15:32 mkalkbrenner Exp $
 
 ThemeKey
 ========

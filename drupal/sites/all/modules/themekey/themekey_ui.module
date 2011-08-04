@@ -1,5 +1,4 @@
 <?php
-// $Id: themekey_ui.module,v 1.6.2.4 2011/01/09 09:15:33 mkalkbrenner Exp $
 
 /**
  * @file
@@ -93,7 +92,7 @@ function themekey_ui_nid2theme($nid) {
 
   themekey_ui_nodeapi($node, 'load');
 
-  if (!empty($node->themekey_ui_theme) && themekey_check_theme_enabled($node->themekey_ui_theme)) {
+  if (!empty($node->themekey_ui_theme) && 'default' != $node->themekey_ui_theme && themekey_check_theme_enabled($node->themekey_ui_theme)) {
     $custom_theme = $node->themekey_ui_theme;
     return 'static';
   }
@@ -122,7 +121,7 @@ function themekey_ui_author2theme($nid) {
   // node_load() must not be called from hook_init().
   // Therefore, we have to execute SQL here.
   if ($theme = db_result(db_query("SELECT theme FROM {node} JOIN {themekey_ui_author_theme} USING (uid) WHERE nid = %d", $nid))) {
-    if ('default' != $theme) {
+    if ('default' != $theme && themekey_check_theme_enabled($theme)) {
       $custom_theme = $theme;
       return 'static';
     }
@@ -138,9 +137,11 @@ function themekey_ui_author2theme($nid) {
 function themekey_ui_theme() {
   return array(
     'themekey_ui_table' => array(
+      'file' => 'themekey_ui_admin.inc',
       'arguments' => array('form' => NULL),
     ),
     'themekey_ui_theme_select_form' => array(
+      'file' => 'themekey_ui_admin.inc',
       'arguments' => array('form' => NULL),
     ),
   );

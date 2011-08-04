@@ -1,5 +1,4 @@
 <?php
-// $Id: themekey.taxonomy.inc,v 1.13.2.7 2011/01/09 09:15:33 mkalkbrenner Exp $
 
 /**
  * @file

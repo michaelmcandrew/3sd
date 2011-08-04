@@ -1,13 +1,12 @@
-; $Id: themekey.info,v 1.2 2010/07/21 11:34:46 mkalkbrenner Exp $
 
 name = "ThemeKey"
 description = "Map themes to Drupal paths or object properties."
 core = 6.x
 package = ThemeKey
 
-; Information added by drupal.org packaging script on 2011-01-13
-version = "6.x-3.2"
+; Information added by drupal.org packaging script on 2011-04-27
+version = "6.x-3.3"
 core = "6.x"
 project = "themekey"
-datestamp = "1294948593"
+datestamp = "1303918616"
 
